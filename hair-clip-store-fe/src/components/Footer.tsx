@@ -27,7 +27,9 @@ export function Footer() {
         </div>
 
         <div>
-          <h3 className="text-sm font-semibold tracking-wide text-foreground uppercase">Liên kết</h3>
+          <h3 className="text-sm font-semibold tracking-wide text-foreground uppercase">
+            Liên kết
+          </h3>
           <ul className="mt-4 space-y-3">
             {links.map((l) => (
               <li key={l.to}>

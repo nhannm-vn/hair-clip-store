@@ -1,10 +1,13 @@
 import { Link } from "@tanstack/react-router";
-
 import { getCategoryName } from "@/data/categories";
 import { formatPrice } from "@/lib/site";
 import type { Product } from "@/types";
 
-export function ProductCard({ product }: { product: Product }) {
+export interface ProductCardProps {
+  product: Product;
+}
+
+export function ProductCard({ product }: ProductCardProps) {
   return (
     <Link
       to="/san-pham/$slug"
@@ -33,7 +36,9 @@ export function ProductCard({ product }: { product: Product }) {
           {product.description}
         </p>
         <div className="mt-auto flex items-center justify-between pt-3">
-          <span className="text-sm font-semibold text-foreground">{formatPrice(product.price)}</span>
+          <span className="text-sm font-semibold text-foreground">
+            {formatPrice(product.price)}
+          </span>
           <span className="text-xs font-medium text-rose transition-transform duration-300 group-hover:translate-x-0.5">
             Xem chi tiết →
           </span>
@@ -42,3 +47,4 @@ export function ProductCard({ product }: { product: Product }) {
     </Link>
   );
 }
+

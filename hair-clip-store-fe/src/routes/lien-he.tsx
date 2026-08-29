@@ -2,8 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Clock, Facebook, MapPin, Phone } from "lucide-react";
 
 import { SectionHeader } from "@/components/SectionHeader";
-import { ZaloButton } from "@/components/ZaloButton";
-import { ZaloIcon } from "@/components/ZaloButton";
+import { ZaloButton, ZaloIcon } from "@/components/ZaloButton";
 import { SITE, ZALO_CONTACT_URL } from "@/lib/site";
 
 export const Route = createFileRoute("/lien-he")({

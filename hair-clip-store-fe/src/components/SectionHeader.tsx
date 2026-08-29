@@ -1,18 +1,20 @@
 import { cn } from "@/lib/utils";
 
+export interface SectionHeaderProps {
+  eyebrow?: string;
+  title: string;
+  subtitle?: string;
+  align?: "center" | "left";
+  className?: string;
+}
+
 export function SectionHeader({
   eyebrow,
   title,
   subtitle,
   align = "center",
   className,
-}: {
-  eyebrow?: string;
-  title: string;
-  subtitle?: string;
-  align?: "center" | "left";
-  className?: string;
-}) {
+}: SectionHeaderProps) {
   return (
     <div
       className={cn(
@@ -29,3 +31,4 @@ export function SectionHeader({
     </div>
   );
 }
+

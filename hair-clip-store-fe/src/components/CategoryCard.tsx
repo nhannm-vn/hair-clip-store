@@ -1,8 +1,11 @@
 import { Link } from "@tanstack/react-router";
-
 import type { Category } from "@/types";
 
-export function CategoryCard({ category }: { category: Category }) {
+export interface CategoryCardProps {
+  category: Category;
+}
+
+export function CategoryCard({ category }: CategoryCardProps) {
   return (
     <Link
       to="/san-pham"
@@ -28,3 +31,4 @@ export function CategoryCard({ category }: { category: Category }) {
     </Link>
   );
 }
+

@@ -1,27 +1,35 @@
 import { useState } from "react";
-
 import { cn } from "@/lib/utils";
 
-export function ProductGallery({ images, name }: { images: string[]; name: string }) {
+export interface ProductGalleryProps {
+  images: string[];
+  name: string;
+  className?: string;
+}
+
+export function ProductGallery({ images, name, className }: ProductGalleryProps) {
   const [active, setActive] = useState(0);
+  const currentImage = images[active] ?? images[0];
 
   return (
-    <div>
+    <div className={className}>
       <div className="overflow-hidden rounded-3xl border border-border/70 bg-cream shadow-soft">
-        <img
-          src={images[active]}
-          alt={name}
-          width={1024}
-          height={1024}
-          className="aspect-square w-full object-cover transition-transform duration-700 hover:scale-105"
-        />
+        {currentImage ? (
+          <img
+            src={currentImage}
+            alt={name}
+            width={1024}
+            height={1024}
+            className="aspect-square w-full object-cover transition-transform duration-700 hover:scale-105"
+          />
+        ) : null}
       </div>
 
       {images.length > 1 ? (
         <div className="mt-4 flex gap-3">
           {images.map((img, i) => (
             <button
-              key={img + i}
+              key={`${img}-${i}`}
               type="button"
               onClick={() => setActive(i)}
               aria-label={`Xem ảnh ${i + 1}`}
@@ -45,3 +53,4 @@ export function ProductGallery({ images, name }: { images: string[]; name: strin
     </div>
   );
 }
+

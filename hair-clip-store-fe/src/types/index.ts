@@ -1,8 +1,12 @@
+/**
+ * Entity & Domain Types for Hair Clip Store
+ */
+
 export interface Product {
   id: string;
   name: string;
   slug: string;
-  category: string; // category slug
+  category: string; // Category slug reference
   productCode: string;
   price?: number;
   description: string;
@@ -21,3 +25,22 @@ export interface Category {
   image: string;
   description: string;
 }
+
+export interface FilterOption {
+  value: string;
+  label: string;
+}
+
+export interface ZaloProductContext {
+  name: string;
+  productCode: string;
+}
+
+export interface SiteConfig {
+  name: string;
+  tagline: string;
+  phone: string;
+  facebookUrl: string;
+  zaloPhone: string;
+}
+

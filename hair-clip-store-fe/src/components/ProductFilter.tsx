@@ -1,27 +1,30 @@
 import { Search } from "lucide-react";
-
 import { cn } from "@/lib/utils";
+import type { FilterOption } from "@/types";
 
-export interface FilterOption {
+export type { FilterOption };
+
+export interface ProductSearchProps {
   value: string;
-  label: string;
+  onChange: (value: string) => void;
+  placeholder?: string;
+  className?: string;
 }
 
 export function ProductSearch({
   value,
   onChange,
-}: {
-  value: string;
-  onChange: (v: string) => void;
-}) {
+  placeholder = "Tìm kiếm sản phẩm...",
+  className,
+}: ProductSearchProps) {
   return (
-    <div className="relative w-full sm:max-w-xs">
+    <div className={cn("relative w-full sm:max-w-xs", className)}>
       <Search className="pointer-events-none absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
       <input
         type="search"
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        placeholder="Tìm kiếm sản phẩm..."
+        placeholder={placeholder}
         aria-label="Tìm kiếm sản phẩm"
         className="h-12 w-full rounded-full border border-input bg-card pr-4 pl-11 text-sm text-foreground placeholder:text-muted-foreground focus:border-rose focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
       />
@@ -29,17 +32,21 @@ export function ProductSearch({
   );
 }
 
-export function ProductFilter({
-  options,
-  value,
-  onChange,
-}: {
+export interface ProductFilterProps {
   options: FilterOption[];
   value: string;
-  onChange: (v: string) => void;
-}) {
+  onChange: (value: string) => void;
+  className?: string;
+}
+
+export function ProductFilter({ options, value, onChange, className }: ProductFilterProps) {
   return (
-    <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:px-0">
+    <div
+      className={cn(
+        "-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:px-0",
+        className,
+      )}
+    >
       {options.map((o) => (
         <button
           key={o.value}
@@ -58,3 +65,4 @@ export function ProductFilter({
     </div>
   );
 }
+

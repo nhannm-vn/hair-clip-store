@@ -273,15 +273,15 @@ export const products: Product[] = [
   },
 ];
 
-export function getProductBySlug(slug: string) {
+export function getProductBySlug(slug: string): Product | undefined {
   return products.find((p) => p.slug === slug);
 }
 
-export function getFeaturedProducts(limit = 8) {
+export function getFeaturedProducts(limit = 8): Product[] {
   return products.filter((p) => p.featured).slice(0, limit);
 }
 
-export function getRelatedProducts(product: Product, limit = 4) {
+export function getRelatedProducts(product: Product, limit = 4): Product[] {
   const sameCategory = products.filter(
     (p) => p.category === product.category && p.id !== product.id,
   );
@@ -291,6 +291,6 @@ export function getRelatedProducts(product: Product, limit = 4) {
   return [...sameCategory, ...others].slice(0, limit);
 }
 
-export function getProductsByCategory(slug: string) {
+export function getProductsByCategory(slug: string): Product[] {
   return products.filter((p) => p.category === slug);
 }

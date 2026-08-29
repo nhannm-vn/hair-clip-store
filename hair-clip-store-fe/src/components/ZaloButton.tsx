@@ -1,27 +1,45 @@
-import { cn } from "@/lib/utils";
 import { buildZaloUrl } from "@/lib/site";
+import { cn } from "@/lib/utils";
+import type { ZaloProductContext } from "@/types";
 
-export function ZaloIcon({ className }: { className?: string }) {
+export interface ZaloIconProps {
+  className?: string;
+}
+
+export function ZaloIcon({ className }: ZaloIconProps) {
   return (
-    <svg viewBox="0 0 24 24" aria-hidden="true" className={cn("h-4 w-4", className)} fill="currentColor">
+    <svg
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+      className={cn("h-4 w-4", className)}
+      fill="currentColor"
+    >
       <path d="M12 2C6.477 2 2 5.94 2 10.8c0 2.78 1.47 5.25 3.77 6.87-.13.98-.6 2.5-1.3 3.55-.2.3.09.68.43.56 1.9-.66 3.4-1.6 4.2-2.2.9.17 1.85.27 2.9.27 5.523 0 10-3.94 10-8.8S17.523 2 12 2Z" />
     </svg>
   );
 }
 
-type Size = "sm" | "md" | "lg";
-type Variant = "zalo" | "outline";
+export type ZaloButtonSize = "sm" | "md" | "lg";
+export type ZaloButtonVariant = "zalo" | "outline";
 
-const sizes: Record<Size, string> = {
+const sizes: Record<ZaloButtonSize, string> = {
   sm: "h-9 px-4 text-sm",
   md: "h-11 px-5 text-sm",
   lg: "h-13 px-7 text-base",
 };
 
-const variants: Record<Variant, string> = {
+const variants: Record<ZaloButtonVariant, string> = {
   zalo: "bg-zalo text-zalo-foreground hover:brightness-110 shadow-soft",
   outline: "border border-border bg-card text-foreground hover:bg-cream",
 };
+
+export interface ZaloButtonProps {
+  product?: ZaloProductContext;
+  label?: string;
+  size?: ZaloButtonSize;
+  variant?: ZaloButtonVariant;
+  className?: string;
+}
 
 export function ZaloButton({
   product,
@@ -29,13 +47,7 @@ export function ZaloButton({
   size = "md",
   variant = "zalo",
   className,
-}: {
-  product?: { name: string; productCode: string };
-  label?: string;
-  size?: Size;
-  variant?: Variant;
-  className?: string;
-}) {
+}: ZaloButtonProps) {
   return (
     <a
       href={buildZaloUrl(product)}
@@ -53,3 +65,4 @@ export function ZaloButton({
     </a>
   );
 }
+

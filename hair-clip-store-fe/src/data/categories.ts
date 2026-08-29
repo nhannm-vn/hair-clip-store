@@ -52,10 +52,10 @@ export const categories: Category[] = [
   },
 ];
 
-export function getCategory(slug: string) {
+export function getCategory(slug: string): Category | undefined {
   return categories.find((c) => c.slug === slug);
 }
 
-export function getCategoryName(slug: string) {
+export function getCategoryName(slug: string): string {
   return getCategory(slug)?.name ?? slug;
 }

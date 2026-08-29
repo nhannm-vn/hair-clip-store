@@ -2,14 +2,20 @@ import type { Product } from "@/types";
 import { ProductCard } from "./ProductCard";
 import { EmptyState } from "./EmptyState";
 
-export function ProductGrid({ products }: { products: Product[] }) {
+export interface ProductGridProps {
+  products: Product[];
+  emptyTitle?: string;
+  emptyDescription?: string;
+  className?: string;
+}
+
+export function ProductGrid({
+  products,
+  emptyTitle = "Không tìm thấy sản phẩm phù hợp",
+  emptyDescription = "Bạn thử đổi từ khóa hoặc chọn danh mục khác nhé. Hoặc nhắn Zalo để Thịnh Phát tư vấn trực tiếp.",
+}: ProductGridProps) {
   if (products.length === 0) {
-    return (
-      <EmptyState
-        title="Không tìm thấy sản phẩm phù hợp"
-        description="Bạn thử đổi từ khóa hoặc chọn danh mục khác nhé. Hoặc nhắn Zalo để Thịnh Phát tư vấn trực tiếp."
-      />
-    );
+    return <EmptyState title={emptyTitle} description={emptyDescription} />;
   }
 
   return (
@@ -20,3 +26,4 @@ export function ProductGrid({ products }: { products: Product[] }) {
     </div>
   );
 }
+

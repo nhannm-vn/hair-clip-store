@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
+import { z } from "zod";
 
 import { CTASection } from "@/components/CTASection";
 import { ProductFilter, ProductSearch } from "@/components/ProductFilter";
@@ -7,11 +8,14 @@ import { ProductGrid } from "@/components/ProductGrid";
 import { SectionHeader } from "@/components/SectionHeader";
 import { getCategoryName } from "@/data/categories";
 import { catalogService, searchProducts } from "@/services/catalog";
+import type { FilterOption } from "@/types";
+
+const productSearchSchema = z.object({
+  danh_muc: z.string().optional(),
+});
 
 export const Route = createFileRoute("/san-pham/")({
-  validateSearch: (search: Record<string, unknown>) => ({
-    danh_muc: typeof search['danh_muc'] === "string" ? (search['danh_muc'] as string) : undefined,
-  }),
+  validateSearch: (search) => productSearchSchema.parse(search),
   head: () => ({
     meta: [
       { title: "Sản phẩm kẹp tóc & phụ kiện — Thịnh Phát" },
