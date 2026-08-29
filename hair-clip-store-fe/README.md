@@ -1,53 +1,247 @@
-# Thịnh Phát Showcase
+# Thịnh Phát Hair Clip Store - Frontend
 
-Build a modern, elegant, responsive product showcase website for a Vietnamese hair accessories store called:
+Modern, elegant, and responsive e-commerce showcase website for **Thịnh Phát** - a Vietnamese hair accessories store.
 
-THỊNH PHÁT
+## 📋 Project Overview
 
-Brand
+**THỊNH PHÁT** specializes in high-quality hair clips and accessories. This website is designed to:
 
-THỊNH PHÁT
-Kẹp Tóc & Phụ Kiện
+- ✨ Showcase hair clip products elegantly
+- 📂 Organize products by categories
+- 📸 Display detailed product information with images
+- 💬 Enable direct customer communication via Zalo
+- 🎯 Provide a simple, fast, and focused shopping experience
 
-The website is designed to showcase and promote hair clip products to customers.
+### Customer Journey
 
-This is NOT a traditional complex e-commerce website.
-
-The main goal is to allow customers to:
-
-Browse hair clip products.
-
-Explore different product categories.
-
-View detailed information and images for each product.
-
-Select products they are interested in.
-
-Contact the shop directly via Zalo.
-
-Discuss and confirm the quantity and order with the seller through Zalo.
-
-The primary customer journey should be:
-
+```
 Trang chủ → Khám phá sản phẩm → Xem chi tiết → Nhắn Zalo → Chốt số lượng với shop
+```
 
-Do NOT build:
+## 🛠️ Tech Stack
 
-Complex shopping cart
+- **Framework**: React 19 + TanStack Start
+- **Routing**: TanStack Router v1
+- **Styling**: Tailwind CSS + Radix UI
+- **State Management**: TanStack React Query
+- **Form Handling**: React Hook Form
+- **Language**: TypeScript
+- **Build Tool**: Vite
 
-Checkout process
+## 📁 Project Structure
 
-Online payment gateway
+```
+src/
+├── components/          # Reusable React components
+│   ├── ui/             # Radix UI component wrappers
+│   ├── CategoryCard.tsx
+│   ├── ProductCard.tsx
+│   ├── ProductGrid.tsx
+│   ├── Navbar.tsx
+│   └── Footer.tsx
+├── routes/             # TanStack Router pages
+│   ├── __root.tsx      # Root layout
+│   ├── index.tsx       # Home page
+│   ├── san-pham.index.tsx
+│   ├── san-pham.$slug.tsx
+│   ├── danh-muc.tsx
+│   ├── gioi-thieu.tsx
+│   └── lien-he.tsx
+├── services/           # Business logic
+│   └── catalog.ts
+├── data/               # Mock data (static)
+│   ├── products.ts
+│   └── categories.ts
+├── types/              # TypeScript types
+│   └── index.ts
+├── lib/                # Utilities & helpers
+│   ├── utils.ts
+│   ├── site.ts
+│   └── error-page.ts
+└── styles.css          # Global styles
+```
 
-User authentication
+## 🚀 Getting Started
 
-Customer dashboard
+### Prerequisites
 
-Complex order management
+- Node.js 18+ (v20+ recommended)
+- pnpm, npm, or yarn
 
-Keep the experience simple, fast, and focused on product discovery and direct communication with the seller.
+### Installation
 
-LANGUAGE
+1. **Clone the repository**
+
+```bash
+git clone https://github.com/your-org/hair-clip-store-fe.git
+cd hair-clip-store-fe
+```
+
+2. **Install dependencies**
+
+```bash
+pnpm install
+# or
+npm install
+```
+
+3. **Setup environment**
+
+```bash
+cp .env.example .env.local
+```
+
+4. **Start development server**
+
+```bash
+pnpm dev
+# or
+npm run dev
+```
+
+The site will be available at `http://localhost:5173`
+
+## 📝 Available Scripts
+
+```bash
+# Start development server
+pnpm dev
+
+# Build for production
+pnpm build
+
+# Build development version
+pnpm build:dev
+
+# Preview production build
+pnpm preview
+
+# Run linter
+pnpm lint
+
+# Format code with Prettier
+pnpm format
+```
+
+## 🎨 Design Features
+
+- Responsive design (mobile-first approach)
+- Accessible UI components (Radix UI)
+- Beautiful animations and transitions
+- Vietnamese localization
+- Dark/Light mode ready (Tailwind CSS)
+- Floating Zalo contact button
+
+## 🔧 Configuration
+
+### TypeScript
+
+Configuration in `tsconfig.json`:
+
+- **Target**: ES2022
+- **Module Resolution**: Bundler
+- **Strict Mode**: Enabled
+- **Path Alias**: `@/*` → `./src/*`
+
+### Prettier
+
+Code formatting configured in `.prettierrc.json`:
+
+```json
+{
+  "semi": true,
+  "singleQuote": false,
+  "printWidth": 100,
+  "tabWidth": 2
+}
+```
+
+### ESLint
+
+Linting rules configured in `eslint.config.js`:
+
+- Recommended ESLint rules
+- TypeScript ESLint recommendations
+- React Hooks plugin
+- React Refresh plugin
+- Prettier integration
+
+## 📦 Key Dependencies
+
+### UI & Styling
+
+- `@radix-ui/*` - Accessible UI components
+- `tailwindcss` - Utility-first CSS framework
+- `class-variance-authority` - Component variants
+- `lucide-react` - Beautiful icons
+
+### Data & State
+
+- `@tanstack/react-query` - Server state management
+- `react-hook-form` - Form state management
+- `zod` - Schema validation
+
+### Utilities
+
+- `clsx` - Conditional class names
+- `tailwind-merge` - Merge Tailwind classes
+- `date-fns` - Date utilities
+- `sonner` - Toast notifications
+
+## 🚨 Quality Assurance
+
+### Linting
+
+Ensure all code passes linting rules:
+
+```bash
+pnpm lint
+```
+
+### Code Formatting
+
+Keep consistent code style:
+
+```bash
+pnpm format
+```
+
+## 📱 Browser Support
+
+- Chrome/Edge (latest)
+- Firefox (latest)
+- Safari (latest)
+- Mobile browsers (iOS Safari, Chrome Mobile)
+
+## 🔐 Security
+
+- No authentication/login system
+- No payment processing
+- No user data collection beyond basic contact
+- All data is static/mock data
+
+## 📞 Contact & Support
+
+For shop inquiries and orders, customers should contact via:
+
+- **Zalo**: [Shop Zalo number on website]
+- **Facebook**: [Shop Facebook page]
+
+## 📄 License
+
+MIT License - See LICENSE file for details
+
+## 🤝 Contributing
+
+This project is connected to Lovable. When pushing to the connected branch:
+
+- Avoid force pushing or rebasing published commits
+- Keep the branch in a working state
+- Commits sync back to Lovable
+
+---
+
+**Built with ❤️ for Thịnh Phát Hair Clip Store**
 
 The customer-facing website should primarily use:
 
@@ -1037,14 +1231,10 @@ The final website should feel like a real, polished product showcase website for
 
 It should feel:
 
-Simple
-+
-Modern
-+
-Elegant
-+
-Trustworthy
-+
+Simple +
+Modern +
+Elegant +
+Trustworthy +
 Easy to use
 
 The website should NOT feel like a complicated e-commerce platform.
