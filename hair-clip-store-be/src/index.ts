@@ -5,6 +5,14 @@ import { connectDB } from './config/db'
 
 dotenv.config()
 
+// For Node.js (CommonJS)
+// Quan trong bo vao moi chay duoc
+require('node:dns/promises').setServers(['1.1.1.1', '8.8.8.8'])
+
+// For ES Modules (import)
+import dns from 'node:dns/promises'
+dns.setServers(['1.1.1.1', '8.8.8.8'])
+
 const app = express()
 const PORT = process.env.PORT || 5000
 
@@ -22,5 +30,5 @@ app.get('/', (req, res) => {
 
 // Chạy Server
 app.listen(PORT, () => {
-  console.log(`🚀 Server đang chạy tại: http://localhost:${PORT}`)
+  console.log(`Server đang chạy tại: http://localhost:${PORT}`)
 })
