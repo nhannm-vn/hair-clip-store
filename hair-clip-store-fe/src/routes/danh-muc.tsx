@@ -6,6 +6,13 @@ import { SectionHeader } from "@/components/SectionHeader";
 import { catalogService } from "@/services/catalog";
 
 export const Route = createFileRoute("/danh-muc")({
+  loader: async () => {
+    const [categories, products] = await Promise.all([
+      catalogService.listCategories(),
+      catalogService.listProducts({ limit: 100 }),
+    ]);
+    return { categories, products };
+  },
   head: () => ({
     meta: [
       { title: "Danh mục kẹp tóc & phụ kiện — Thịnh Phát" },
@@ -25,8 +32,7 @@ export const Route = createFileRoute("/danh-muc")({
 });
 
 function CategoriesPage() {
-  const categories = catalogService.listCategories();
-  const products = catalogService.listProducts();
+  const { categories, products } = Route.useLoaderData();
 
   return (
     <div className="pb-24">

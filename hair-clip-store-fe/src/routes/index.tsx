@@ -8,6 +8,13 @@ import { SectionHeader } from "@/components/SectionHeader";
 import { catalogService } from "@/services/catalog";
 
 export const Route = createFileRoute("/")({
+  loader: async () => {
+    const [featured, categories] = await Promise.all([
+      catalogService.getFeatured(8),
+      catalogService.listCategories(),
+    ]);
+    return { featured, categories };
+  },
   head: () => ({
     meta: [
       { title: "Thịnh Phát — Kẹp Tóc & Phụ Kiện Tóc Đa Dạng" },
@@ -19,7 +26,8 @@ export const Route = createFileRoute("/")({
       { property: "og:title", content: "Thịnh Phát — Kẹp Tóc & Phụ Kiện Tóc Đa Dạng" },
       {
         property: "og:description",
-        content: "Bộ sưu tập kẹp tóc và phụ kiện tóc đa dạng. Nhắn Zalo để được tư vấn và đặt hàng.",
+        content:
+          "Bộ sưu tập kẹp tóc và phụ kiện tóc đa dạng. Nhắn Zalo để được tư vấn và đặt hàng.",
       },
     ],
   }),
@@ -27,8 +35,7 @@ export const Route = createFileRoute("/")({
 });
 
 function Index() {
-  const featured = catalogService.getFeatured(8);
-  const categories = catalogService.listCategories();
+  const { featured, categories } = Route.useLoaderData();
 
   return (
     <div className="pb-24">
