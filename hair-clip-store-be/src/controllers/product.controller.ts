@@ -1,8 +1,6 @@
-/* eslint-disable @typescript-eslint/no-empty-object-type */
 import { Request, Response } from 'express'
 import mongoose from 'mongoose'
 import { Product } from '../models/Product'
-import { Category } from '../models/Category'
 
 // ================== TYPES ==================
 interface GetProductsQuery {
@@ -10,7 +8,6 @@ interface GetProductsQuery {
   limit?: string
   search?: string
   categoryId?: string
-  categorySlug?: string
   color?: string
   isFeatured?: string
   bestSeller?: string
@@ -34,7 +31,7 @@ const parseBoolean = (value?: string): boolean | undefined => {
  */
 export const getProducts = async (req: Request<{}, {}, {}, GetProductsQuery>, res: Response) => {
   try {
-    const { search, categoryId, categorySlug, color, isFeatured, bestSeller, sortBy, sortOrder } = req.query
+    const { search, categoryId, color, isFeatured, bestSeller, sortBy, sortOrder } = req.query
 
     // --- Phân trang ---
     const page = Math.max(1, parseInt(req.query.page as string, 10) || 1)
@@ -57,14 +54,6 @@ export const getProducts = async (req: Request<{}, {}, {}, GetProductsQuery>, re
         })
       }
       filter.categoryId = categoryId
-    } else if (categorySlug && categorySlug !== 'all') {
-      const matchedCategory = await Category.findOne({ slug: categorySlug, isActive: true })
-      if (matchedCategory) {
-        filter.categoryId = matchedCategory._id
-      } else {
-        // Danh mục không tồn tại -> trả về rỗng
-        filter.categoryId = new mongoose.Types.ObjectId()
-      }
     }
 
     if (color) {
@@ -87,8 +76,10 @@ export const getProducts = async (req: Request<{}, {}, {}, GetProductsQuery>, re
     const sort: Record<string, 1 | -1> = { [sortField]: sortDirection }
 
     // --- Truy vấn ---
+    // .populate('categoryId', ...) giúp trả về object {_id, categoryName, slug}
+    // thay vì chỉ ObjectId thô, để frontend hiển thị đúng tên/slug danh mục
     const [items, totalItems] = await Promise.all([
-      Product.find(filter).populate('categoryId').sort(sort).skip(skip).limit(limit),
+      Product.find(filter).populate('categoryId', 'categoryName slug').sort(sort).skip(skip).limit(limit),
       Product.countDocuments(filter)
     ])
 
@@ -108,7 +99,7 @@ export const getProducts = async (req: Request<{}, {}, {}, GetProductsQuery>, re
       }
     })
   } catch (error) {
-    console.error('Lỗi getProducts:', error)
+    console.error('❌ Lỗi getProducts:', error)
     return res.status(500).json({
       statusCode: 500,
       message: 'Lỗi server, vui lòng thử lại sau',
@@ -133,7 +124,7 @@ export const getProductById = async (req: Request, res: Response) => {
       })
     }
 
-    const product = await Product.findOne({ _id: id, isActive: true }).populate('categoryId')
+    const product = await Product.findOne({ _id: id, isActive: true }).populate('categoryId', 'categoryName slug')
 
     if (!product) {
       return res.status(404).json({
@@ -149,7 +140,7 @@ export const getProductById = async (req: Request, res: Response) => {
       data: product
     })
   } catch (error) {
-    console.error('Lỗi getProductById:', error)
+    console.error('❌ Lỗi getProductById:', error)
     return res.status(500).json({
       statusCode: 500,
       message: 'Lỗi server, vui lòng thử lại sau',
@@ -166,7 +157,7 @@ export const getProductBySlug = async (req: Request, res: Response) => {
   try {
     const { slug } = req.params
 
-    const product = await Product.findOne({ slug, isActive: true }).populate('categoryId')
+    const product = await Product.findOne({ slug, isActive: true }).populate('categoryId', 'categoryName slug')
 
     if (!product) {
       return res.status(404).json({
@@ -182,7 +173,7 @@ export const getProductBySlug = async (req: Request, res: Response) => {
       data: product
     })
   } catch (error) {
-    console.error('Lỗi getProductBySlug:', error)
+    console.error('❌ Lỗi getProductBySlug:', error)
     return res.status(500).json({
       statusCode: 500,
       message: 'Lỗi server, vui lòng thử lại sau',
