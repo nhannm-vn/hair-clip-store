@@ -2,6 +2,7 @@ import express from 'express'
 import cors from 'cors'
 import dotenv from 'dotenv'
 import { connectDB } from './config/db'
+import categoryRoutes from './routes/category.routes'
 import productRoutes from './routes/product.routes'
 
 dotenv.config()
@@ -23,6 +24,7 @@ app.get('/', (req, res) => {
 })
 
 app.use('/api/v1/products', productRoutes)
+app.use('/api/v1/categories', categoryRoutes)
 
 app.listen(PORT, () => {
   console.log(`Server đang chạy tại: http://localhost:${PORT}`)
