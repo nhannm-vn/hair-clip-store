@@ -5,31 +5,30 @@ import { ZaloButton } from "./ZaloButton";
 
 export function HeroSection() {
   return (
-    <section className="mx-auto grid max-w-6xl items-center gap-10 px-4 pt-10 pb-16 sm:px-6 lg:grid-cols-2 lg:gap-16 lg:pt-20 lg:pb-24">
+    <section className="mx-auto grid max-w-6xl items-center gap-8 px-4 pt-8 pb-14 sm:gap-10 sm:px-6 sm:pt-10 sm:pb-16 lg:grid-cols-2 lg:gap-16 lg:pt-20 lg:pb-24">
       <div className="reveal">
         <p className="eyebrow">Kẹp tóc & phụ kiện</p>
-        <h1 className="mt-4 text-4xl leading-[1.1] font-semibold text-foreground sm:text-5xl lg:text-6xl">
+        <h1 className="mt-3 text-3xl leading-[1.15] font-semibold text-foreground sm:mt-4 sm:text-4xl md:text-5xl lg:text-6xl">
           Khám phá những mẫu kẹp tóc dành cho bạn
         </h1>
-        <p className="mt-6 max-w-xl text-base leading-relaxed text-muted-foreground">
+        <p className="mt-4 text-sm leading-relaxed text-muted-foreground sm:mt-6 sm:max-w-xl sm:text-base">
           Thịnh Phát mang đến nhiều mẫu kẹp tóc đa dạng với nhiều kiểu dáng, màu sắc và phong cách
-          khác nhau. Dễ dàng khám phá sản phẩm, xem thông tin chi tiết và liên hệ trực tiếp với shop
-          qua Zalo để đặt hàng.
+          khác nhau. Dễ dàng khám phá sản phẩm và liên hệ qua Zalo để đặt hàng.
         </p>
-        <div className="mt-9 flex flex-wrap items-center gap-3">
+        <div className="mt-7 flex flex-col gap-3 sm:mt-9 sm:flex-row sm:flex-wrap sm:items-center">
           <Link
             to="/san-pham"
             search={{ danh_muc: undefined }}
-            className="inline-flex h-13 items-center justify-center rounded-full bg-primary px-7 text-base font-medium text-primary-foreground shadow-soft transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lift"
+            className="inline-flex h-12 w-full items-center justify-center rounded-full bg-primary px-7 text-sm font-medium text-primary-foreground shadow-soft transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lift sm:h-13 sm:w-auto sm:text-base"
           >
             Khám phá sản phẩm
           </Link>
-          <ZaloButton size="lg" variant="outline" />
+          <ZaloButton size="lg" variant="outline" className="w-full sm:w-auto" />
         </div>
       </div>
 
-      <div className="reveal relative">
-        <div className="overflow-hidden rounded-3xl border border-border/70 shadow-lift">
+      <div className="reveal relative pb-0 sm:pb-6">
+        <div className="overflow-hidden rounded-2xl border border-border/70 shadow-lift sm:rounded-3xl">
           <img
             src="https://res.cloudinary.com/qrmat5by/image/upload/v1787988041/9813a0fa-0e53-4399-9c0e-c17c6332ce64.jpg"
             alt="Bộ sưu tập kẹp tóc và phụ kiện của Thịnh Phát"
