@@ -16,8 +16,7 @@ export function EmptyState({ title, description }: EmptyStateProps) {
           {description}
         </p>
       ) : null}
-      <ZaloButton className="mt-6" label="Nhắn Zalo để được tư vấn" />
+      <ZaloButton className="mt-6" label="Nhắn tin với Thịnh Phát" />
     </div>
   );
 }
-

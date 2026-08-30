@@ -2,28 +2,65 @@ import type { SiteConfig, ZaloProductContext } from "@/types";
 
 /**
  * Cấu hình thông tin liên hệ của shop.
- * Chỉ cần thay đổi các giá trị dưới đây khi shop đổi số điện thoại / Zalo.
+ *
+ * Khi shop đổi số điện thoại / Zalo,
+ * chỉ cần thay đổi các giá trị ở đây.
  */
 export const SITE: SiteConfig = {
   name: "THỊNH PHÁT",
   tagline: "Kẹp Tóc & Phụ Kiện",
-  phone: "0909 123 456",
-  facebookUrl: "https://facebook.com/",
-  zaloPhone: "0333681660",
+
+  // Số điện thoại liên hệ
+  phone: "0966538356",
+
+  // Facebook
+  facebookUrl: "https://www.facebook.com/share/1EcWAscx3Z/?mibextid=wwXIfr",
+
+  // Số điện thoại Zalo
+  zaloPhone: "0966538356",
 } as const;
 
+/**
+ * Link Zalo cá nhân của shop.
+ *
+ * Kết quả:
+ * https://zalo.me/0333681660
+ */
 export const ZALO_CONTACT_URL = `https://zalo.me/${SITE.zaloPhone}`;
 
-/** Tạo link Zalo, kèm nội dung tin nhắn gợi ý nếu có sản phẩm cụ thể. */
+/**
+ * Tạo link Zalo.
+ *
+ * Trường hợp 1:
+ * Không truyền product
+ * → Mở contact Zalo của Thịnh Phát.
+ *
+ * Trường hợp 2:
+ * Có product
+ * → Mở contact Zalo và tạo nội dung tin nhắn
+ * liên quan đến sản phẩm.
+ */
 export function buildZaloUrl(product?: ZaloProductContext): string {
-  if (!product) return ZALO_CONTACT_URL;
+  // Không có sản phẩm
+  if (!product) {
+    return ZALO_CONTACT_URL;
+  }
+
+  // Nội dung tin nhắn gợi ý
   const message = `Xin chào Thịnh Phát, tôi đang quan tâm đến sản phẩm ${product.name} - Mã sản phẩm: ${product.productCode}. Tôi muốn hỏi thêm thông tin và số lượng.`;
+
+  // Encode nội dung để đưa vào URL
   return `${ZALO_CONTACT_URL}?text=${encodeURIComponent(message)}`;
 }
 
-/** Định dạng giá tiền VND hiển thị thân thiện với người dùng. */
+/**
+ * Định dạng giá tiền VND hiển thị thân thiện.
+ */
 export function formatPrice(price?: number): string {
-  if (price == null) return "Liên hệ";
+  if (price == null) {
+    return "Liên hệ";
+  }
+
   return new Intl.NumberFormat("vi-VN", {
     style: "currency",
     currency: "VND",

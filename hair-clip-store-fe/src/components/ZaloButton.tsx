@@ -20,6 +20,7 @@ export function ZaloIcon({ className }: ZaloIconProps) {
 }
 
 export type ZaloButtonSize = "sm" | "md" | "lg";
+
 export type ZaloButtonVariant = "zalo" | "outline";
 
 const sizes: Record<ZaloButtonSize, string> = {
@@ -48,9 +49,11 @@ export function ZaloButton({
   variant = "zalo",
   className,
 }: ZaloButtonProps) {
+  const zaloUrl = buildZaloUrl(product);
+
   return (
     <a
-      href={buildZaloUrl(product)}
+      href={zaloUrl}
       target="_blank"
       rel="noopener noreferrer"
       className={cn(
@@ -61,8 +64,8 @@ export function ZaloButton({
       )}
     >
       <ZaloIcon className={size === "lg" ? "h-5 w-5" : "h-4 w-4"} />
+
       {label}
     </a>
   );
 }
-
