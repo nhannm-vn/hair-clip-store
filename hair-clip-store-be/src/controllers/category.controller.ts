@@ -43,6 +43,7 @@ export const getCategories = async (req: Request, res: Response) => {
  * Lấy danh sách sản phẩm thuộc 1 danh mục (có phân trang + sort)
  */
 export const getProductsByCategory = async (
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
   req: Request<{ id: string }, {}, {}, GetProductsByCategoryQuery>,
   res: Response
 ) => {
@@ -82,7 +83,7 @@ export const getProductsByCategory = async (
     const filter = { categoryId: id, isActive: true }
 
     const [items, totalItems] = await Promise.all([
-      Product.find(filter).sort(sort).skip(skip).limit(limit),
+      Product.find(filter).populate('categoryId').sort(sort).skip(skip).limit(limit),
       Product.countDocuments(filter)
     ])
 

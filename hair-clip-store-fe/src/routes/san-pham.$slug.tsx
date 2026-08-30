@@ -9,10 +9,11 @@ import { formatPrice } from "@/lib/site";
 import { catalogService } from "@/services/catalog";
 
 export const Route = createFileRoute("/san-pham/$slug")({
-  loader: ({ params }) => {
-    const product = catalogService.getProduct(params.slug);
+  loader: async ({ params }) => {
+    const product = await catalogService.getProduct(params.slug);
     if (!product) throw notFound();
-    return { product };
+    const related = await catalogService.getRelated(product, 4);
+    return { product, related };
   },
   head: ({ loaderData }) => {
     if (!loaderData) {
@@ -67,8 +68,9 @@ function DetailError() {
 }
 
 function ProductDetail() {
-  const { product } = Route.useLoaderData();
-  const related = catalogService.getRelated(product, 4);
+  const { product, related } = Route.useLoaderData();
+
+  const displayCategory = product.categoryName || getCategoryName(product.category);
 
   return (
     <div className="pb-24">
@@ -90,14 +92,37 @@ function ProductDetail() {
         <ProductGallery images={product.images} name={product.name} />
 
         <div>
-          <p className="eyebrow">{getCategoryName(product.category)}</p>
+          <p className="eyebrow">{displayCategory}</p>
           <h1 className="mt-3 text-3xl font-semibold text-foreground sm:text-4xl">
             {product.name}
           </h1>
           <p className="mt-2 text-sm text-muted-foreground">Mã sản phẩm: {product.productCode}</p>
-          <p className="mt-5 text-2xl font-semibold text-foreground">
-            {formatPrice(product.price)}
-          </p>
+
+          <div className="mt-5 flex items-baseline gap-3">
+            {product.discountPrice &&
+            product.discountPrice > 0 &&
+            product.price &&
+            product.discountPrice < product.price ? (
+              <>
+                <span className="text-2xl font-semibold text-rose sm:text-3xl">
+                  {formatPrice(product.discountPrice)}
+                </span>
+                <span className="text-base text-muted-foreground line-through">
+                  {formatPrice(product.price)}
+                </span>
+              </>
+            ) : (
+              <span className="text-2xl font-semibold text-foreground sm:text-3xl">
+                {formatPrice(product.price)}
+              </span>
+            )}
+            {product.wholesalePrice && product.wholesalePrice > 0 && (
+              <span className="rounded-full bg-cream px-2.5 py-1 text-xs font-medium text-rose">
+                Giá sỉ từ {formatPrice(product.wholesalePrice)}
+              </span>
+            )}
+          </div>
+
           <p className="mt-5 text-base leading-relaxed text-muted-foreground">
             {product.description}
           </p>
@@ -108,8 +133,12 @@ function ProductDetail() {
               <dd className="mt-1 text-sm font-medium text-foreground">{product.material}</dd>
             </div>
             <div>
-              <dt className="text-xs tracking-wide text-muted-foreground uppercase">Kích thước</dt>
-              <dd className="mt-1 text-sm font-medium text-foreground">{product.size}</dd>
+              <dt className="text-xs tracking-wide text-muted-foreground uppercase">
+                Kích thước / Dịp dùng
+              </dt>
+              <dd className="mt-1 text-sm font-medium text-foreground">
+                {product.occasion ? product.occasion : product.size}
+              </dd>
             </div>
             <div className="sm:col-span-2">
               <dt className="text-xs tracking-wide text-muted-foreground uppercase">Màu sắc</dt>

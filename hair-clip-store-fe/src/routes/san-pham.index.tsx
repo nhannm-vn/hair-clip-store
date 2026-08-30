@@ -16,6 +16,17 @@ const productSearchSchema = z.object({
 
 export const Route = createFileRoute("/san-pham/")({
   validateSearch: (search) => productSearchSchema.parse(search),
+  loaderDeps: ({ search: { danh_muc } }) => ({ danh_muc }),
+  loader: async ({ deps: { danh_muc } }) => {
+    const [categories, all] = await Promise.all([
+      catalogService.listCategories(),
+      catalogService.listProducts({
+        ...(danh_muc && danh_muc !== "all" ? { categorySlug: danh_muc } : {}),
+        limit: 100,
+      }),
+    ]);
+    return { categories, all };
+  },
   head: () => ({
     meta: [
       { title: "Sản phẩm kẹp tóc & phụ kiện — Thịnh Phát" },
@@ -36,11 +47,10 @@ export const Route = createFileRoute("/san-pham/")({
 
 function ProductsPage() {
   const { danh_muc } = Route.useSearch();
+  const { categories, all } = Route.useLoaderData();
   const navigate = useNavigate({ from: Route.fullPath });
   const [query, setQuery] = useState("");
 
-  const categories = catalogService.listCategories();
-  const all = catalogService.listProducts();
   const active = danh_muc ?? "all";
 
   const options = useMemo(
@@ -51,10 +61,18 @@ function ProductsPage() {
     [categories],
   );
 
+  const activeCategoryName = useMemo(() => {
+    if (active === "all") return "";
+    const cat = categories.find((c) => c.slug === active);
+    return cat?.name || getCategoryName(active);
+  }, [active, categories]);
+
   const products = useMemo(() => {
-    const byCategory = active === "all" ? all : all.filter((p) => p.category === active);
-    return searchProducts(byCategory, query, getCategoryName);
-  }, [active, all, query]);
+    return searchProducts(all, query, (slug) => {
+      const cat = categories.find((c) => c.slug === slug);
+      return cat?.name || getCategoryName(slug);
+    });
+  }, [all, categories, query]);
 
   return (
     <div className="pb-24">
@@ -82,7 +100,7 @@ function ProductsPage() {
 
         <p className="mt-6 text-sm text-muted-foreground">
           Hiển thị {products.length} sản phẩm
-          {active !== "all" ? ` trong danh mục ${getCategoryName(active)}` : ""}.
+          {active !== "all" ? ` trong danh mục ${activeCategoryName}` : ""}.
         </p>
 
         <div className="mt-6">

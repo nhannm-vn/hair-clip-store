@@ -31,7 +31,7 @@ export function HeroSection() {
       <div className="reveal relative">
         <div className="overflow-hidden rounded-3xl border border-border/70 shadow-lift">
           <img
-            src={heroImage}
+            src="https://res.cloudinary.com/qrmat5by/image/upload/v1787988041/9813a0fa-0e53-4399-9c0e-c17c6332ce64.jpg"
             alt="Bộ sưu tập kẹp tóc và phụ kiện của Thịnh Phát"
             width={1600}
             height={1200}

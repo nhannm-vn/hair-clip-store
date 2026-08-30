@@ -1,2 +1,3 @@
 // Services
-export { catalogService, searchProducts } from "./catalog";
+export { api } from "./api";
+export { catalogService, searchProducts, mapBackendProduct, mapBackendCategory } from "./catalog";

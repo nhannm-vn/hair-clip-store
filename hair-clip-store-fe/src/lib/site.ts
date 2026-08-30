@@ -9,7 +9,7 @@ export const SITE: SiteConfig = {
   tagline: "Kẹp Tóc & Phụ Kiện",
   phone: "0909 123 456",
   facebookUrl: "https://facebook.com/",
-  zaloPhone: "0909123456",
+  zaloPhone: "0333681660",
 } as const;
 
 export const ZALO_CONTACT_URL = `https://zalo.me/${SITE.zaloPhone}`;
@@ -30,4 +30,3 @@ export function formatPrice(price?: number): string {
     maximumFractionDigits: 0,
   }).format(price);
 }
-
