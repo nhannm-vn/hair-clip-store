@@ -39,6 +39,52 @@ export const getCategories = async (req: Request, res: Response) => {
 }
 
 /**
+ * DELETE /api/v1/categories/:id
+ * Xóa danh mục và toàn bộ sản phẩm thuộc danh mục đó
+ */
+export const deleteCategory = async (req: Request<{ id: string }>, res: Response) => {
+  try {
+    const { id } = req.params
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
+        statusCode: 400,
+        message: 'ID danh mục không hợp lệ',
+        data: null
+      })
+    }
+
+    const deletedCategory = await Category.findByIdAndDelete(id)
+
+    if (!deletedCategory) {
+      return res.status(404).json({
+        statusCode: 404,
+        message: 'Không tìm thấy danh mục',
+        data: null
+      })
+    }
+
+    const deleteProductsResult = await Product.deleteMany({ categoryId: deletedCategory._id })
+
+    return res.status(200).json({
+      statusCode: 200,
+      message: 'Xóa danh mục và các sản phẩm thuộc danh mục thành công',
+      data: {
+        category: deletedCategory,
+        deletedProductCount: deleteProductsResult.deletedCount
+      }
+    })
+  } catch (error) {
+    console.error('Lỗi deleteCategory:', error)
+    return res.status(500).json({
+      statusCode: 500,
+      message: 'Lỗi server, vui lòng thử lại sau',
+      data: null
+    })
+  }
+}
+
+/**
  * GET /api/v1/categories/:id/products
  * Lấy danh sách sản phẩm thuộc 1 danh mục (có phân trang + sort)
  */
