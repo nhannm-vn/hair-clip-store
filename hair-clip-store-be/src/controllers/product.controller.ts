@@ -2,7 +2,6 @@ import { Request, Response } from 'express'
 import mongoose from 'mongoose'
 import { Product } from '../models/Product'
 
-// ================== TYPES ==================
 interface GetProductsQuery {
   page?: string
   limit?: string
@@ -11,77 +10,84 @@ interface GetProductsQuery {
   color?: string
   isFeatured?: string
   bestSeller?: string
+  isActive?: string
   sortBy?: 'createdAt' | 'price' | 'soldQuantity'
   sortOrder?: 'asc' | 'desc'
 }
 
-// ================== HELPERS ==================
 const ALLOWED_SORT_FIELDS = ['createdAt', 'price', 'soldQuantity']
 
-const parseBoolean = (value?: string): boolean | undefined => {
-  if (value === undefined) return undefined
-  if (value === 'true') return true
-  if (value === 'false') return false
-  return undefined
+const generateSlug = (str: string): string => {
+  return str
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[đĐ]/g, 'd')
+    .replace(/([^0-9a-z-\s])/g, '')
+    .replace(/(\s+)/g, '-')
+    .replace(/^-+|-+$/g, '')
 }
 
 /**
  * GET /api/v1/products
- * Lấy danh sách sản phẩm: phân trang + filter + tìm kiếm + sắp xếp
  */
 export const getProducts = async (req: Request<{}, {}, {}, GetProductsQuery>, res: Response) => {
   try {
-    const { search, categoryId, color, isFeatured, bestSeller, sortBy, sortOrder } = req.query
+    const { search, categoryId, color, isFeatured, bestSeller, isActive, sortBy, sortOrder } = req.query
 
-    // --- Phân trang ---
     const page = Math.max(1, parseInt(req.query.page as string, 10) || 1)
-    const limit = Math.max(1, parseInt(req.query.limit as string, 10) || 10)
+    // Hỗ trợ nhận cả limit lẫn pageSize từ Frontend
+    const limitParam = req.query.limit || (req.query as any).pageSize
+    const limit = Math.max(1, parseInt(limitParam as string, 10) || 10)
     const skip = (page - 1) * limit
 
-    // --- Xây dựng filter ---
-    const filter: Record<string, any> = { isActive: true }
+    const filter: Record<string, any> = {}
+
+    if (isActive === 'true') filter.isActive = true
+    if (isActive === 'false') filter.isActive = false
 
     if (search && search.trim() !== '') {
       filter.productName = { $regex: search.trim(), $options: 'i' }
     }
 
-    if (categoryId) {
-      if (!mongoose.Types.ObjectId.isValid(categoryId)) {
-        return res.status(400).json({
-          statusCode: 400,
-          message: 'categoryId không hợp lệ',
-          data: null
-        })
+    // XỬ LÝ LỖI CATEGORY ID (Convert sang ObjectId nếu hợp lệ)
+    if (categoryId && categoryId.trim() !== '') {
+      const trimmedId = categoryId.trim()
+      const conditions: any[] = [{ categoryId: trimmedId }, { 'categoryId.$oid': trimmedId }]
+
+      if (mongoose.Types.ObjectId.isValid(trimmedId)) {
+        conditions.push({ categoryId: new mongoose.Types.ObjectId(trimmedId) })
       }
-      filter.categoryId = categoryId
+
+      filter.$or = conditions
     }
 
-    if (color) {
-      filter.color = color
-    }
+    if (color) filter.color = color
+    if (isFeatured === 'true') filter.isFeatured = true
+    if (isFeatured === 'false') filter.isFeatured = false
+    if (bestSeller === 'true') filter.bestSeller = true
+    if (bestSeller === 'false') filter.bestSeller = false
 
-    const isFeaturedBool = parseBoolean(isFeatured)
-    if (isFeaturedBool !== undefined) {
-      filter.isFeatured = isFeaturedBool
-    }
-
-    const bestSellerBool = parseBoolean(bestSeller)
-    if (bestSellerBool !== undefined) {
-      filter.bestSeller = bestSellerBool
-    }
-
-    // --- Sắp xếp ---
     const sortField = ALLOWED_SORT_FIELDS.includes(sortBy as string) ? (sortBy as string) : 'createdAt'
     const sortDirection = sortOrder === 'asc' ? 1 : -1
     const sort: Record<string, 1 | -1> = { [sortField]: sortDirection }
 
-    // --- Truy vấn ---
-    // .populate('categoryId', ...) giúp trả về object {_id, categoryName, slug}
-    // thay vì chỉ ObjectId thô, để frontend hiển thị đúng tên/slug danh mục
-    const [items, totalItems] = await Promise.all([
-      Product.find(filter).populate('categoryId', 'categoryName slug').sort(sort).skip(skip).limit(limit),
+    const [rawItems, totalItems] = await Promise.all([
+      Product.find(filter).sort(sort).skip(skip).limit(limit).lean(),
       Product.countDocuments(filter)
     ])
+
+    const items = rawItems.map((prod: any) => {
+      const cleanCategoryId =
+        typeof prod.categoryId === 'object' && prod.categoryId?.$oid
+          ? prod.categoryId.$oid
+          : prod.categoryId?.toString() || prod.categoryId
+
+      return {
+        ...prod,
+        categoryId: cleanCategoryId
+      }
+    })
 
     const totalPages = Math.ceil(totalItems / limit) || 0
 
@@ -98,8 +104,8 @@ export const getProducts = async (req: Request<{}, {}, {}, GetProductsQuery>, re
         hasPrevPage: page > 1
       }
     })
-  } catch (error) {
-    console.error('❌ Lỗi getProducts:', error)
+  } catch (error: any) {
+    console.error('Lỗi getProducts:', error)
     return res.status(500).json({
       statusCode: 500,
       message: 'Lỗi server, vui lòng thử lại sau',
@@ -110,21 +116,12 @@ export const getProducts = async (req: Request<{}, {}, {}, GetProductsQuery>, re
 
 /**
  * GET /api/v1/products/:id
- * Lấy chi tiết sản phẩm theo ID
  */
 export const getProductById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params
 
-    if (!mongoose.Types.ObjectId.isValid(id as string)) {
-      return res.status(400).json({
-        statusCode: 400,
-        message: 'ID sản phẩm không hợp lệ',
-        data: null
-      })
-    }
-
-    const product = await Product.findOne({ _id: id, isActive: true }).populate('categoryId', 'categoryName slug')
+    const product: any = await Product.findById(id).lean()
 
     if (!product) {
       return res.status(404).json({
@@ -134,13 +131,17 @@ export const getProductById = async (req: Request, res: Response) => {
       })
     }
 
+    if (typeof product.categoryId === 'object' && product.categoryId?.$oid) {
+      product.categoryId = product.categoryId.$oid
+    }
+
     return res.status(200).json({
       statusCode: 200,
       message: 'Lấy chi tiết sản phẩm thành công',
       data: product
     })
-  } catch (error) {
-    console.error('❌ Lỗi getProductById:', error)
+  } catch (error: any) {
+    console.error('Lỗi getProductById:', error)
     return res.status(500).json({
       statusCode: 500,
       message: 'Lỗi server, vui lòng thử lại sau',
@@ -151,13 +152,12 @@ export const getProductById = async (req: Request, res: Response) => {
 
 /**
  * GET /api/v1/products/slug/:slug
- * Lấy chi tiết sản phẩm theo Slug (dùng cho trang chi tiết / SEO)
  */
 export const getProductBySlug = async (req: Request, res: Response) => {
   try {
     const { slug } = req.params
 
-    const product = await Product.findOne({ slug, isActive: true }).populate('categoryId', 'categoryName slug')
+    const product: any = await Product.findOne({ slug }).lean()
 
     if (!product) {
       return res.status(404).json({
@@ -167,13 +167,165 @@ export const getProductBySlug = async (req: Request, res: Response) => {
       })
     }
 
+    if (typeof product.categoryId === 'object' && product.categoryId?.$oid) {
+      product.categoryId = product.categoryId.$oid
+    }
+
     return res.status(200).json({
       statusCode: 200,
       message: 'Lấy chi tiết sản phẩm thành công',
       data: product
     })
-  } catch (error) {
-    console.error('❌ Lỗi getProductBySlug:', error)
+  } catch (error: any) {
+    console.error('Lỗi getProductBySlug:', error)
+    return res.status(500).json({
+      statusCode: 500,
+      message: 'Lỗi server, vui lòng thử lại sau',
+      data: null
+    })
+  }
+}
+
+/**
+ * POST /api/v1/products
+ */
+export const createProduct = async (req: Request, res: Response) => {
+  try {
+    const {
+      categoryId,
+      productName,
+      material,
+      description,
+      wholesalePrice,
+      price,
+      discountPrice,
+      stockQuantity,
+      color,
+      occasion,
+      imageUrl,
+      bestSeller,
+      isFeatured,
+      isActive
+    } = req.body
+
+    if (!productName || !categoryId || price === undefined) {
+      return res.status(400).json({
+        statusCode: 400,
+        message: 'Tên sản phẩm (productName), danh mục (categoryId) và giá (price) là bắt buộc',
+        data: null
+      })
+    }
+
+    const slug = req.body.slug || generateSlug(productName)
+
+    const existingSlug = await Product.findOne({ slug })
+    if (existingSlug) {
+      return res.status(400).json({
+        statusCode: 400,
+        message: 'Slug sản phẩm đã tồn tại',
+        data: null
+      })
+    }
+
+    const newProduct = await Product.create({
+      categoryId,
+      productName,
+      slug,
+      material: material || '',
+      description: description || '',
+      wholesalePrice: wholesalePrice || 0,
+      price,
+      discountPrice: discountPrice || 0,
+      stockQuantity: stockQuantity || 0,
+      color: color || '',
+      occasion: occasion || '',
+      imageUrl: imageUrl || '',
+      soldQuantity: 0,
+      bestSeller: bestSeller || false,
+      isFeatured: isFeatured || false,
+      isActive: isActive !== undefined ? isActive : true
+    })
+
+    return res.status(201).json({
+      statusCode: 201,
+      message: 'Tạo sản phẩm thành công',
+      data: newProduct
+    })
+  } catch (error: any) {
+    console.error('Lỗi createProduct:', error)
+    return res.status(500).json({
+      statusCode: 500,
+      message: 'Lỗi server, vui lòng thử lại sau',
+      data: null
+    })
+  }
+}
+
+/**
+ * PUT /api/v1/products/:id
+ */
+export const updateProduct = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params
+
+    const updateData = { ...req.body }
+
+    if (updateData.productName && !updateData.slug) {
+      updateData.slug = generateSlug(updateData.productName)
+    }
+
+    const updatedProduct = await Product.findByIdAndUpdate(id, updateData, {
+      new: true,
+      runValidators: true
+    })
+
+    if (!updatedProduct) {
+      return res.status(404).json({
+        statusCode: 404,
+        message: 'Không tìm thấy sản phẩm để cập nhật',
+        data: null
+      })
+    }
+
+    return res.status(200).json({
+      statusCode: 200,
+      message: 'Cập nhật sản phẩm thành công',
+      data: updatedProduct
+    })
+  } catch (error: any) {
+    console.error('Lỗi updateProduct:', error)
+    return res.status(500).json({
+      statusCode: 500,
+      message: 'Lỗi server, vui lòng thử lại sau',
+      data: null
+    })
+  }
+}
+
+/**
+ * DELETE /api/v1/products/:id
+ */
+export const deleteProduct = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params
+
+    const deletedProduct = await Product.findByIdAndDelete(id)
+
+    if (!deletedProduct) {
+      return res.status(404).json({
+        statusCode: 404,
+        message: 'Không tìm thấy sản phẩm để xóa',
+        data: null
+      })
+    }
+
+    return res.status(200).json({
+      statusCode: 200,
+      message: 'Xóa sản phẩm thành công',
+      data: null
+    })
+  } catch (error: any) {
+    console.error('Lỗi deleteProduct:', error)
     return res.status(500).json({
       statusCode: 500,
       message: 'Lỗi server, vui lòng thử lại sau',
