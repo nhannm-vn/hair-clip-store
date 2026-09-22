@@ -19,11 +19,13 @@ export interface Product {
   images: string[];
   featured?: boolean | undefined;
   bestSeller?: boolean | undefined;
+  isActive?: boolean | undefined;
   stockQuantity?: number | undefined;
   soldQuantity?: number | undefined;
   occasion?: string | undefined;
   tags?: string[] | undefined;
   categoryId?: string | undefined;
+  updatedAt?: string | undefined;
 }
 
 export interface Category {
@@ -33,6 +35,7 @@ export interface Category {
   image: string;
   description: string;
   productCount?: number | undefined;
+  isActive?: boolean | undefined;
 }
 
 export interface FilterOption {
@@ -49,6 +52,7 @@ export interface SiteConfig {
   name: string;
   tagline: string;
   phone: string;
+  address: string;
   facebookUrl: string;
   zaloPhone: string;
 }
@@ -115,4 +119,27 @@ export interface GetProductsParams {
   bestSeller?: boolean | undefined;
   sortBy?: ("createdAt" | "price" | "soldQuantity") | undefined;
   sortOrder?: ("asc" | "desc") | undefined;
+}
+
+// ================== AUTH TYPES ==================
+
+export interface LoginCredentials {
+  username: string;
+  password: string;
+  secretKey: string;
+}
+
+export interface LoginResponseData {
+  message?: string | undefined; // 👈 thêm dòng này
+  accessToken?: string | undefined;
+  token?: string | undefined;
+  user?:
+    | {
+        _id?: string | undefined;
+        username?: string | undefined;
+        role?: string | undefined;
+        [key: string]: unknown;
+      }
+    | undefined;
+  [key: string]: unknown;
 }
