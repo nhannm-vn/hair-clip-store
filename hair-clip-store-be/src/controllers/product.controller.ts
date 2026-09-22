@@ -7,6 +7,7 @@ interface GetProductsQuery {
   limit?: string
   search?: string
   categoryId?: string
+  categorySlug?: string
   color?: string
   isFeatured?: string
   bestSeller?: string
