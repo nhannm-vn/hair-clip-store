@@ -138,15 +138,29 @@ export const catalogService = {
 
   /**
    * Lấy danh sách sản phẩm với các bộ lọc (phân trang, tìm kiếm, danh mục, nổi bật...)
+   * ⚠️ Backend CHỈ hiểu query param "categoryId" (ObjectId), KHÔNG hiểu "categorySlug".
+   * Nên phải tự resolve categorySlug -> categoryId trước khi gọi API,
+   * nếu không backend sẽ bỏ qua filter và trả về toàn bộ sản phẩm (bug đã gặp).
    */
   async listProducts(params?: GetProductsParams): Promise<Product[]> {
     try {
-      const response = await api.getProducts(params);
+      let resolvedParams: GetProductsParams = { ...params };
+
+      if (resolvedParams.categorySlug && !resolvedParams.categoryId) {
+        const category = await this.getCategory(resolvedParams.categorySlug);
+        if (category) {
+          resolvedParams = { ...resolvedParams, categoryId: category.id };
+        }
+      }
+      // Xoá categorySlug trước khi gửi lên API vì backend không nhận field này
+      delete resolvedParams.categorySlug;
+
+      const response = await api.getProducts(resolvedParams);
       if (response.data && response.data.length > 0) {
         return response.data.map(mapBackendProduct);
       }
       // Nếu lọc mà không có kết quả từ DB, trả về mảng rỗng
-      if (params?.categorySlug || params?.categoryId || params?.search) {
+      if (resolvedParams?.categoryId || resolvedParams?.search) {
         return [];
       }
       return fallbackProducts;
@@ -234,21 +248,36 @@ export const catalogService = {
 };
 
 /**
+ * Bỏ dấu tiếng Việt để so sánh không phân biệt dấu.
+ * VD: "Ghi Bạc" -> "ghi bac", giúp gõ "bac" vẫn tìm ra "Bạc".
+ */
+function removeVietnameseTones(str: string): string {
+  return str
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/đ/g, "d")
+    .replace(/Đ/g, "D")
+    .toLowerCase();
+}
+
+/**
  * Tìm kiếm sản phẩm theo từ khóa (tên, mã sản phẩm, danh mục, mô tả).
+ * Không phân biệt dấu tiếng Việt (gõ "bac" vẫn tìm ra "Bạc").
  */
 export function searchProducts(
   list: Product[],
   query: string,
   categoryNameOf?: (slug: string) => string,
 ): Product[] {
-  const q = query.trim().toLowerCase();
+  const q = removeVietnameseTones(query.trim());
   if (!q) return list;
   return list.filter((p) => {
     const catName = p.categoryName || (categoryNameOf ? categoryNameOf(p.category) : p.category);
-    return [p.name, p.productCode, catName, p.description, p.material, p.occasion]
-      .filter(Boolean)
-      .join(" ")
-      .toLowerCase()
-      .includes(q);
+    const haystack = removeVietnameseTones(
+      [p.name, p.productCode, catName, p.description, p.material, p.occasion]
+        .filter(Boolean)
+        .join(" "),
+    );
+    return haystack.includes(q);
   });
 }
